@@ -31,6 +31,9 @@ class CraneKeyboardController(Node):
             10
         )
 
+        self.joint_trajectory_publisher_ = self.create_publisher(
+            JointTrajectoryPoint, ARM_CONTROL, 10)
+        self.joint_pos = [1.57, 1.57, 1.57, 1.57]
         self.stdscr = stdscr
 
     def _sub_callback(self, msg):        
@@ -46,29 +49,45 @@ class CraneKeyboardController(Node):
                 if c != curses.ERR:
                     if c == ord('w') or c == ord('W'):
                         movement = [0, 1, 0]                    
-                    if c == ord('s') or c == ord('S'):
+                    elif c == ord('s') or c == ord('S'):
                         movement = [0, -1, 0]
-                    if c == ord('a') or c == ord('A'):
+                    elif c == ord('a') or c == ord('A'):
                         movement = [1, 0, 0]
-                    if c == ord('d') or c == ord('D'):
+                    elif c == ord('d') or c == ord('D'):
                         movement = [-1, 0, 0]
-                    if c == ord('z') or c == ord('Z'):
+                    elif c == ord('z') or c == ord('Z'):
                         movement = [0, 0, 1]
-                    if c == ord('c') or c == ord('C'):
+                    elif c == ord('c') or c == ord('C'):
                         movement = [0, 0, -1]
-
+                    elif c == ord('j'):
+                        self.handle_key_j()
+                    elif c == ord('k'):
+                        self.handle_key_k()
+                    elif c == ord('l'):
+                        self.handle_key_l()
+                    elif c == ord('u'):
+                        self.handle_key_u()
+                    elif c == ord('o'):
+                        self.handle_key_o()
                     elif c == ord('q'):
                         
                         break
                     
                     self.pub_crane_control(movement)
+                    self.pub_arm()
                 else:
                     # self.print_basic_info(ord(' '))
                     time.sleep(0.1)
                 
-
         finally:
             curses.endwin()
+    
+    def pub_arm(self):
+        msg = JointTrajectoryPoint()
+        msg.positions = self.joint_pos
+        msg.velocities = [0.0, 0.0, 0.0, 0.0]
+
+        self.joint_trajectory_publisher_.publish(msg)
 
     def pub_crane_control(self, movement):
         # Generate a random control signal
@@ -88,6 +107,36 @@ class CraneKeyboardController(Node):
         self.publisher.publish(control_msg)
 
         # self.get_logger().info(f'publish {control_msg}')
+    
+    def handle_key_i(self):
+        self.stdscr.addstr(f"arm rift up")
+        self.joint_pos[2] += 0.05
+        pass
+
+    def handle_key_j(self):
+        self.stdscr.addstr(f"arm turn left")
+        self.joint_pos[0] -= 0.05
+        pass
+
+    def handle_key_k(self):
+        self.stdscr.addstr(f"arm rift down")
+        self.joint_pos[2] -= 0.05
+        pass
+
+    def handle_key_l(self):
+        self.stdscr.addstr(f"arm turn right")
+        self.joint_pos[0] += 0.05
+        pass
+
+    def handle_key_u(self):
+        self.stdscr.addstr(f"arm j4 rotate left")
+        self.joint_pos[3] -= 0.05
+        pass
+
+    def handle_key_o(self):
+        self.stdscr.addstr(f"arm j4 rotate right")
+        self.joint_pos[3] += 0.05
+        pass
 
 def main(args=None):
     rclpy.init(args=args)
