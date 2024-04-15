@@ -59,6 +59,8 @@ class CraneKeyboardController(Node):
                         movement = [0, 0, 1]
                     elif c == ord('c') or c == ord('C'):
                         movement = [0, 0, -1]
+                    elif c == ord('i'):
+                        self.handle_key_i()
                     elif c == ord('j'):
                         self.handle_key_j()
                     elif c == ord('k'):
