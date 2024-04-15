@@ -70,7 +70,7 @@ class CraneKeyboardController(Node):
                     elif c == ord('o'):
                         self.handle_key_o()
                     elif c == ord('q'):
-                        
+                        self.pub_crane_control(movement)
                         break
                     
                     self.pub_crane_control(movement)
