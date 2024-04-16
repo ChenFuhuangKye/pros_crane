@@ -8,7 +8,7 @@ import curses
 import threading
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectoryPoint
-
+import math
 from pros_crane_py.ENV import *
 
 class CraneKeyboardController(Node):
@@ -71,6 +71,8 @@ class CraneKeyboardController(Node):
                         self.handle_key_u()
                     elif c == ord('o'):
                         self.handle_key_o()
+                    elif c == ord('b'):
+                        self.handle_key_b()
                     elif c == ord('q'):
                         self.pub_crane_control(movement)
                         break
@@ -139,6 +141,13 @@ class CraneKeyboardController(Node):
         self.stdscr.addstr(f"arm j4 rotate right")
         self.joint_pos[3] += 0.05
         pass
+
+    def handle_key_b(self):
+        # 初始化機器手臂到預設位置的方法
+        self.stdscr.addstr(f"將機器手臂初始化到預設位置...")
+        # self.joint_pos = [0.0, 1.57, 1.57, 0.52,]  # 以弧度表示的角度（0, 90, 90, 0）
+        # self.pub_arm()
+        self.joint_pos = [math.radians(90), math.radians(90), math.radians(90), math.radians(0)]
 
 def main(args=None):
     rclpy.init(args=args)
