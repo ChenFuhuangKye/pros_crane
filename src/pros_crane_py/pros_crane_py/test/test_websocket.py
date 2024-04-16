@@ -29,6 +29,7 @@ async def main():
     ws_instance = WS("ws://localhost:9090")
     connection = await ws_instance.connect()  # Connect to the WebSocket server
     await ws_instance.subscribe_to_topic("/crane", "std_msgs/msg/String")
+    await ws_instance.subscribe_to_topic("/joint_trajectory_point", "trajectory_msgs/msg/JointTrajectoryPoint")
     await ws_instance.message_handler()  # Handle incoming messages
 
 # Start the asyncio event loop
