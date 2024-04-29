@@ -35,7 +35,9 @@ class CraneKeyboardController(Node):
             JointTrajectoryPoint, ARM_CONTROL, 10)
         self.joint_pos = [1.57, 1.57, 1.57, 1.57]
         self.stdscr = stdscr
-
+        
+        self.key_in_count = 0
+        
     def _sub_callback(self, msg):        
         self._car_state_msg = str(self.get_clock().now()) + " " + msg.data
 
@@ -44,21 +46,22 @@ class CraneKeyboardController(Node):
         try:
             while rclpy.ok():
                 c = self.stdscr.getch()
-                movement = [0, 0, 0]
+                self.movement = [0, 0, 0]
+
                 # Check if a key was actually pressed
                 if c != curses.ERR:
                     if c == ord('w') or c == ord('W'):
-                        movement = [0, 1, 0]                    
+                        self.movement = [0, 1, 0]                    
                     elif c == ord('s') or c == ord('S'):
-                        movement = [0, -1, 0]
+                        self.movement = [0, -1, 0]
                     elif c == ord('a') or c == ord('A'):
-                        movement = [1, 0, 0]
+                        self.movement = [1, 0, 0]
                     elif c == ord('d') or c == ord('D'):
-                        movement = [-1, 0, 0]
+                        self.movement = [-1, 0, 0]
                     elif c == ord('z') or c == ord('Z'):
-                        movement = [0, 0, 1]
+                        self.movement = [0, 0, 1]
                     elif c == ord('c') or c == ord('C'):
-                        movement = [0, 0, -1]
+                        self.movement = [0, 0, -1]
                     elif c == ord('i'):
                         self.handle_key_i()
                     elif c == ord('j'):
@@ -74,18 +77,36 @@ class CraneKeyboardController(Node):
                     elif c == ord('b'):
                         self.handle_key_b()
                     elif c == ord('q'):
-                        self.pub_crane_control(movement)
+                        self.pub_crane_control(self.movement)
                         break
                     
-                    self.pub_crane_control(movement)
+                    self.pub_crane_control(self.movement)
                     self.pub_arm()
+
+                    # print the key pressed
+                    self.key_in_count += 1
+                    self.print_basic_info(c)
                 else:
-                    # self.print_basic_info(ord(' '))
+                    self.print_basic_info(ord(' '))
                     time.sleep(0.1)
                 
         finally:
             curses.endwin()
     
+    def print_basic_info(self, key):
+        # Clear the screen
+        self.stdscr.clear()
+
+        self.stdscr.move(0, 0)
+        # Print a string at the current cursor position
+        self.stdscr.addstr(f"{self.key_in_count:5d} Key '{chr(key)}' pressed!")
+
+        # show receive data
+        self.stdscr.move(1, 0)
+        self.stdscr.addstr(f"{self.movement}")
+        self.stdscr.move(2, 0)
+        self.stdscr.addstr(f"{self.joint_pos}")
+
     def pub_arm(self):
         msg = JointTrajectoryPoint()
         msg.positions = self.joint_pos
@@ -112,6 +133,11 @@ class CraneKeyboardController(Node):
 
         # self.get_logger().info(f'publish {control_msg}')
     
+    def handle_key_w(self, movement: list):
+        movement = [0, 1, 0]  
+        self.stdscr.addstr(f"move forward")
+        pass   
+
     def handle_key_i(self):
         self.stdscr.addstr(f"arm rift up")
         self.joint_pos[2] += 0.05
