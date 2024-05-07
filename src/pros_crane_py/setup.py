@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "crane = pros_crane_py.crane:main"
+            "crane = pros_crane_py.crane:main",
+            "crane4282_keyboard = pros_crane_py.crane4282_keyboard:main"
         ],
     },
 )
