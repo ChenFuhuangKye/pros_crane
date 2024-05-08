@@ -80,7 +80,9 @@ class ArmSerialWriter(Node):
             self._serial.write(ctrl_str)
         except orjson.JSONEncodeError as error:
             self.get_logger().error(f"Json encode error when recv message: {msg}")
-            return
+            return        
+        # log
+        self.get_logger().info(f"{ctrl_str}")
 
 def main(args=None):
     rclpy.init(args=args)
