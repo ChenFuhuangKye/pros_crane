@@ -76,6 +76,8 @@ class ArmKeyboardController(Node):
                         self.handle_key_e()
                     elif c == ord('d'):
                         self.handle_key_d()
+                    elif c == ord('b'):
+                        self.handle_key_b()
 
                     elif c == ord('q'):  # Exit on 'q'
                         
@@ -176,6 +178,11 @@ class ArmKeyboardController(Node):
     def handle_key_d(self):
         self.stdscr.addstr(f"arm 1!")
         self.joint_pos[1] -= 0.05
+        pass
+
+    def handle_key_b(self):
+        self.stdscr.addstr(f"reset arm!")
+        self.joint_pos = [1.57, 1.57, 1.57, 1.57, 1.57, 1.57, 1.0]
         pass
 
     def pub_arm(self):
