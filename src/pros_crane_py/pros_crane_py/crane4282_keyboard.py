@@ -16,10 +16,15 @@ class ArmKeyboardController(Node):
         super().__init__('arm_keyboard')
         self.vel = vel
 
-        # Subscriber
+        # Publisher
         self.joint_trajectory_publisher_ = self.create_publisher(
             JointTrajectoryPoint, 'joint_trajectory_point', 10)
         self.joint_pos = [1.57, 1.57, 1.57, 1.57, 1.57, 1.57, 1.0]
+
+        self.motor_state_publisher_ = self.create_publisher(
+            String, 'motor_state', 10)
+        self.motor_state = [0, 0] # [tate_X, state_Y]
+
         self.stdscr = stdscr
         curses.noecho()
         curses.raw()
@@ -72,17 +77,28 @@ class ArmKeyboardController(Node):
                         self.handle_key_r()
                     elif c == ord('f'):
                         self.handle_key_f()
-                    elif c == ord('e'):
-                        self.handle_key_e()
-                    elif c == ord('d'):
-                        self.handle_key_d()
+                    elif c == ord('m'):
+                        self.handle_key_m()
+                    elif c == ord('n'):
+                        self.handle_key_n()
                     elif c == ord('b'):
                         self.handle_key_b()
+                    elif c == ord('w'):
+                        self.handle_key_w()
+                    elif c == ord('s'):
+                        self.handle_key_s()
+                    elif c == ord('a'):
+                        self.handle_key_a()
+                    elif c == ord('d'):
+                        self.handle_key_d()
+                    elif c == ord('x'):
+                        self.handle_key_x()
 
                     elif c == ord('q'):  # Exit on 'q'
                         
                         break                    
                     self.pub_arm()
+                    self.pub_motor_state()
                 else:
                     self.print_basic_info(ord(' '))
                     time.sleep(0.01)
@@ -106,10 +122,12 @@ class ArmKeyboardController(Node):
         self.stdscr.move(1, 0)
         self.stdscr.addstr(f"Arm pos : {self.joint_pos}")
         self.stdscr.move(2, 0)
+        self.stdscr.addstr(f"Motor state : {self.motor_state}")
+        self.stdscr.move(3, 0)
+        
 
         # self.get_logger().debug(f"{self.key_in_count:5d} Key '{chr(key)}' pressed!")
     
-
     def handle_key_i(self):
         self.stdscr.addstr(f"arm rift up")
         self.joint_pos[2] += 0.05
@@ -170,14 +188,39 @@ class ArmKeyboardController(Node):
         self.joint_pos[5] -= 0.05
         pass
 
-    def handle_key_e(self):
+    def handle_key_m(self):
         self.stdscr.addstr(f"arm 1!")
         self.joint_pos[1] += 0.05
         pass
 
-    def handle_key_d(self):
+    def handle_key_n(self):
         self.stdscr.addstr(f"arm 1!")
         self.joint_pos[1] -= 0.05
+        pass
+    
+    def handle_key_w(self):
+        self.stdscr.addstr(f"move up")
+        self.motor_state = [1, 0]
+        pass
+    
+    def handle_key_s(self):
+        self.stdscr.addstr(f"move down")
+        self.motor_state = [-1, 0]
+        pass
+    
+    def handle_key_a(self):
+        self.stdscr.addstr(f"move left")
+        self.motor_state = [0, -1]
+        pass
+    
+    def handle_key_d(self):
+        self.stdscr.addstr(f"move right")
+        self.motor_state = [0, 1]
+        pass
+
+    def handle_key_x(self):
+        self.stdscr.addstr(f"stop")
+        self.motor_state = [0, 0]
         pass
 
     def handle_key_b(self):
@@ -192,6 +235,22 @@ class ArmKeyboardController(Node):
         # You can set other fields of the JointTrajectoryPoint message similarly.
         self.joint_trajectory_publisher_.publish(msg)
 
+    def pub_motor_state(self):
+        
+        control_signal = {
+            "type": "crane",
+            "data": dict(
+                moveX = self.motor_state[0],
+                moveY = self.motor_state[1]
+            )
+        }
+        # Convert the control signal to a JSON string
+        control_msg = String()
+        control_msg.data = orjson.dumps(control_signal).decode()
+
+        # Publish the control signal
+        self.motor_state_publisher_.publish(control_msg)
+        
 
 # ... Rest of your code, e.g. initializing rclpy and running the node
 
