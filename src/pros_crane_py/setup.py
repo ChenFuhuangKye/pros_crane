@@ -21,7 +21,9 @@ setup(
     entry_points={
         'console_scripts': [
             "crane = pros_crane_py.crane:main",
-            "crane4282_keyboard = pros_crane_py.crane4282_keyboard:main"
+            "crane4282_keyboard = pros_crane_py.crane4282_keyboard:main",
+            "crane4282_arm_writer = pros_crane_py.crane4282_arm_writer:main",
+            "crane4282_arm_reader = pros_crane_py.crane4282_arm_reader:main",
         ],
     },
 )
