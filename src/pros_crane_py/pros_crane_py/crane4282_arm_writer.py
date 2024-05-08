@@ -36,14 +36,21 @@ class ArmSerialWriter(Node):
         self._serial = Serial(serial_port, 115200, timeout=0)
 
         #  subscribe
-        self._subscriber = self.create_subscription(
+        self.joint_trajectory_subscriber = self.create_subscription(
             JointTrajectoryPoint,
             'joint_trajectory_point',
-            self.listener_callback,
+            self.joint_trajectory_listener_callback,
             10
         )
 
-    def listener_callback(self, msg: JointTrajectoryPoint):
+        self.motor_state_subscriber = self.create_subscription(
+            std_msgs.msg.String,
+            'motor_state',
+            self.motor__state_listener_callback,
+            10
+        )
+
+    def joint_trajectory_listener_callback(self, msg: JointTrajectoryPoint):
         # TODO send pos to esp32
         radian_positions = msg.positions
         self.get_logger().info(f"receive {radian_positions}")
@@ -61,6 +68,19 @@ class ArmSerialWriter(Node):
         # log
         self.get_logger().info(f"{ctrl_str}")
 
+    def motor__state_listener_callback(self, msg: std_msgs.msg.String):
+        # TODO send motion state to esp32
+        motor_state = msg.data
+        self.get_logger().info(f"receive {motor_state}")
+        
+        ctrl_json = {"motor_state": motor_state}
+        try:
+            ctrl_str = orjson.dumps(ctrl_json, option=orjson.OPT_APPEND_NEWLINE)
+
+            self._serial.write(ctrl_str)
+        except orjson.JSONEncodeError as error:
+            self.get_logger().error(f"Json encode error when recv message: {msg}")
+            return
 
 def main(args=None):
     rclpy.init(args=args)
