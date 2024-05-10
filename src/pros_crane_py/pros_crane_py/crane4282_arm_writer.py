@@ -43,10 +43,10 @@ class ArmSerialWriter(Node):
             10
         )
 
-        self.motor_state_subscriber = self.create_subscription(
+        self.crane_state_subscriber = self.create_subscription(
             std_msgs.msg.String,
-            'motor_state',
-            self.motor__state_listener_callback,
+            'crane_state',
+            self.crane_state_listener_callback,
             10
         )
 
@@ -68,19 +68,22 @@ class ArmSerialWriter(Node):
         # log
         self.get_logger().info(f"{ctrl_str}")
 
-    def motor__state_listener_callback(self, msg: std_msgs.msg.String):
+    def crane_state_listener_callback(self, msg: std_msgs.msg.String):
         # TODO send motion state to esp32
-        motor_state = msg.data
-        self.get_logger().info(f"receive {motor_state}")
-        
-        ctrl_json = {"motor_state": motor_state}
+        crane_state_dict = orjson.load(msg.data)
+        self.get_logger().info(f"receive {crane_state}")
+                
         try:
+            crane_state = crane_state_dict.get('crane_state')
+            self.get_logger.info(f"crane_state: {crane_state}")
+            ctrl_json = {"crane_state: {crane_state}"}
+             
             ctrl_str = orjson.dumps(ctrl_json, option=orjson.OPT_APPEND_NEWLINE)
-
+            self.get_logger().info(f"{ctrl_str}")
             self._serial.write(ctrl_str)
         except orjson.JSONEncodeError as error:
             self.get_logger().error(f"Json encode error when recv message: {msg}")
-            return        
+            return
         # log
         self.get_logger().info(f"{ctrl_str}")
 
