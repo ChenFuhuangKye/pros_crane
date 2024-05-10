@@ -21,9 +21,9 @@ class ArmKeyboardController(Node):
             JointTrajectoryPoint, 'joint_trajectory_point', 10)
         self.joint_pos = [1.57, 1.57, 1.57, 1.57, 1.57, 1.57, 1.0]
 
-        self.motor_state_publisher_ = self.create_publisher(
-            String, 'motor_state', 10)
-        self.motor_state = [0, 0] # [tate_X, state_Y]
+        self.crane_state_publisher_ = self.create_publisher(
+            String, 'crane_state', 10)
+        self.crane_state = [0, 0] # [tate_X, state_Y]
 
         self.stdscr = stdscr
         curses.noecho()
@@ -122,7 +122,7 @@ class ArmKeyboardController(Node):
         self.stdscr.move(1, 0)
         self.stdscr.addstr(f"Arm pos : {self.joint_pos}")
         self.stdscr.move(2, 0)
-        self.stdscr.addstr(f"Motor state : {self.motor_state}")
+        self.stdscr.addstr(f"Crane state : {self.crane_state}")
         self.stdscr.move(3, 0)
         
 
@@ -200,27 +200,27 @@ class ArmKeyboardController(Node):
     
     def handle_key_w(self):
         self.stdscr.addstr(f"move up")
-        self.motor_state = [1, 0]
+        self.crane_state = [1, 0]
         pass
     
     def handle_key_s(self):
         self.stdscr.addstr(f"move down")
-        self.motor_state = [-1, 0]
+        self.crane_state = [-1, 0]
         pass
     
     def handle_key_a(self):
         self.stdscr.addstr(f"move left")
-        self.motor_state = [0, -1]
+        self.crane_state = [0, -1]
         pass
     
     def handle_key_d(self):
         self.stdscr.addstr(f"move right")
-        self.motor_state = [0, 1]
+        self.crane_state = [0, 1]
         pass
 
     def handle_key_x(self):
         self.stdscr.addstr(f"stop")
-        self.motor_state = [0, 0]
+        self.crane_state = [0, 0]
         pass
 
     def handle_key_b(self):
@@ -240,8 +240,7 @@ class ArmKeyboardController(Node):
         control_signal = {
             "type": "crane",
             "data": dict(
-                moveX = self.motor_state[0],
-                moveY = self.motor_state[1]
+                crane_state = self.crane_state
             )
         }
         # Convert the control signal to a JSON string
@@ -249,7 +248,7 @@ class ArmKeyboardController(Node):
         control_msg.data = orjson.dumps(control_signal).decode()
 
         # Publish the control signal
-        self.motor_state_publisher_.publish(control_msg)
+        self.crane_state_publisher_.publish(control_msg)
         
 
 # ... Rest of your code, e.g. initializing rclpy and running the node
