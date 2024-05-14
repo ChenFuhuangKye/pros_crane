@@ -74,6 +74,10 @@ class CraneKeyboardController(Node):
                         self.handle_key_u()
                     elif c == ord('o'):
                         self.handle_key_o()
+                    elif c == ord('y'):
+                        self.handle_key_y()
+                    elif c == ord('h'):
+                        self.handle_key_h()
                     elif c == ord('b'):
                         self.handle_key_b()
                     elif c == ord('q'):
@@ -166,6 +170,16 @@ class CraneKeyboardController(Node):
     def handle_key_o(self):
         self.stdscr.addstr(f"arm j4 rotate right")
         self.joint_pos[3] += 0.05
+        pass
+    
+    def handle_key_y(self):
+        self.stdscr.addstr(f"arm j2 up")
+        self.joint_pos[1] += 0.05
+        pass
+
+    def handle_key_h(self):
+        self.stdscr.addstr(f"arm j2 down")
+        self.joint_pos[1] -= 0.05
         pass
 
     def handle_key_b(self):
