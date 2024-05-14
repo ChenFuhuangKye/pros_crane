@@ -25,7 +25,7 @@ from sensor_msgs.msg import JointState
 from rclpy.duration import Duration
 
 from serial import Serial
-from .env import ARM_SERIAL_PORT_DEFAULT
+from .env_virtual import ARM_SERIAL_PORT_DEFAULT
 
 
 class ArmSerialReader(Node):

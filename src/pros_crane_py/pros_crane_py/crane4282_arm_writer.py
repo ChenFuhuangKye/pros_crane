@@ -17,7 +17,7 @@ transform to servo control signal for serial device.
 
 import orjson
 import math
-from .env import ARM_SERIAL_PORT_DEFAULT
+from .env_virtual import ARM_SERIAL_PORT_DEFAULT
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
