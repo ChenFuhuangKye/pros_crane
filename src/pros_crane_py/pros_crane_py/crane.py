@@ -9,7 +9,7 @@ import threading
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectoryPoint
 import math
-from pros_crane_py.ENV import *
+from pros_crane_py.env_virtual import *
 
 class CraneKeyboardController(Node):
     def __init__(self, stdscr, vel: float = 10):

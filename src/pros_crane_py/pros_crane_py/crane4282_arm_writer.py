@@ -17,7 +17,7 @@ transform to servo control signal for serial device.
 
 import orjson
 import math
-from .env import ARM_SERIAL_PORT_DEFAULT
+from .env_virtual import ARM_SERIAL_PORT_DEFAULT
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -36,14 +36,21 @@ class ArmSerialWriter(Node):
         self._serial = Serial(serial_port, 115200, timeout=0)
 
         #  subscribe
-        self._subscriber = self.create_subscription(
+        self.joint_trajectory_subscriber = self.create_subscription(
             JointTrajectoryPoint,
             'joint_trajectory_point',
-            self.listener_callback,
+            self.joint_trajectory_listener_callback,
             10
         )
 
-    def listener_callback(self, msg: JointTrajectoryPoint):
+        self.crane_state_subscriber = self.create_subscription(
+            std_msgs.msg.String,
+            'crane_state',
+            self.crane_state_listener_callback,
+            10
+        )
+
+    def joint_trajectory_listener_callback(self, msg: JointTrajectoryPoint):
         # TODO send pos to esp32
         radian_positions = msg.positions
         self.get_logger().info(f"receive {radian_positions}")
@@ -61,6 +68,24 @@ class ArmSerialWriter(Node):
         # log
         self.get_logger().info(f"{ctrl_str}")
 
+    def crane_state_listener_callback(self, msg: std_msgs.msg.String):
+        # TODO send motion state to esp32
+        crane_state_dict = orjson.load(msg.data)
+        self.get_logger().info(f"receive {crane_state}")
+                
+        try:
+            crane_state = crane_state_dict.get('crane_state')
+            self.get_logger.info(f"crane_state: {crane_state}")
+            ctrl_json = {"crane_state: {crane_state}"}
+             
+            ctrl_str = orjson.dumps(ctrl_json, option=orjson.OPT_APPEND_NEWLINE)
+            self.get_logger().info(f"{ctrl_str}")
+            self._serial.write(ctrl_str)
+        except orjson.JSONEncodeError as error:
+            self.get_logger().error(f"Json encode error when recv message: {msg}")
+            return
+        # log
+        self.get_logger().info(f"{ctrl_str}")
 
 def main(args=None):
     rclpy.init(args=args)
