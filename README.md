@@ -1,22 +1,37 @@
 # pros_crane
 
-## Automating ROS Environment Setup
-To ensure your ROS environment is automatically set up every time you open a new terminal session, you can add the setup.bash script to your .bashrc file. This will source the ROS environment setup script at each terminal launch, streamlining your workflow.
+## Description
+This repository is based on the image 'ghcr.io/otischung/pros_ai_image' and is used to build the image for the crane project.
 
-Step-by-Step Guide:
-1. Open your terminal.
+## Usage
 
-2. Use the following command to append the source command to your .bashrc file:
+### Docker run command on windows or mac
+```bash
+docker run -it --rm -v "$(pwd)/src:/workspaces/src"  --env-file ./.env ghcr.io/otischung/pros_ai_image:latest /bin/bash
+```
 
-    ```
-    echo "source ~/pros_crane/install/setup.bash" >> ~/.bashrc
-    ```
-    Replace ~/pros_crane/install/setup.bash with the actual path to your setup.bash file.
+### Docker run command on raspberry pi
+```bash
+docker run -it --rm -v "$(pwd)/src:/workspaces/src" --network bridge --device=/dev/usb_robot_arm --env-file ./.env ghcr.io/otischung/pros_ai_image:latest /bin/bash
+```
+or 
+```bash
+./crane4282_control.sh
+``` 
+### docker build
+#### build docker image
+```bash
+docker build -t pros_crane . --no-cache
+```
 
-3. To apply the changes immediately, you can source your .bashrc file by running:
+#### run docker container
+```bash
+docker run -it --rm pros_crane /bin/bash
+```
+#### push docker image
+```bash
+.scripts/local_build.sh
+```
 
-    ```
-    source ~/.bashrc
-    ```
-
-Now, every new terminal session will automatically set up your ROS environment, saving you the step of manually sourcing setup.bash.
+## Resources
+- [ghcr.io/otischung/pros_ai_image](https://github.com/otischung/pros_AI_image)

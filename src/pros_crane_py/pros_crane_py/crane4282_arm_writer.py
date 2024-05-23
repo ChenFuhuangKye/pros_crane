@@ -69,16 +69,18 @@ class ArmSerialWriter(Node):
         self.get_logger().info(f"{ctrl_str}")
 
     def crane_state_listener_callback(self, msg: std_msgs.msg.String):
-        # TODO send motion state to esp32
-        crane_state_dict = orjson.load(msg.data)
-        self.get_logger().info(f"receive {crane_state}")
-                
+        # TODO send motion state to esp32        
+        crane_state_dict = orjson.loads(msg.data)
+        self.get_logger().info(f"receive {crane_state_dict}")
+                                
         try:
-            crane_state = crane_state_dict.get('crane_state')
-            self.get_logger.info(f"crane_state: {crane_state}")
-            ctrl_json = {"crane_state: {crane_state}"}
-             
+            crane_state = crane_state_dict.get('data').get('crane_state')
+                      
+            ctrl_json = {"crane_state": crane_state}             
             ctrl_str = orjson.dumps(ctrl_json, option=orjson.OPT_APPEND_NEWLINE)
+            ctrl_str = orjson.dumps(ctrl_json, option=orjson.OPT_APPEND_NEWLINE)
+            self.get_logger().info(f"{ctrl_str}")
+            ctrl_str = orjson.dumps(ctrl_json, option=orjson.OPT_APPEND_NEWLINE)            
             self.get_logger().info(f"{ctrl_str}")
             self._serial.write(ctrl_str)
         except orjson.JSONEncodeError as error:
